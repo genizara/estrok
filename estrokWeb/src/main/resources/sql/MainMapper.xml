@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.estrok.web.mapper.MainMapper">
+ 
+    <select id="selectNow" resultType="String">
+        SELECT NOW()
+    </select>
+    
+    <select id="getHistoricPriceVolume" parameterType="hashmap" resultType="hashmap">
+    	select
+    		sdp.stock_code
+    		, sdp.reg_dttm
+    		, sdp.price
+    		, sdp.volume
+    		, sdp.rs_52w as sdp_rs_52w
+    		, si.rs_52w as si_rs_52w
+    	from 
+    		stock_daily_price sdp
+    	join
+    	 	stock_index si
+    	on
+    		sdp.reg_dttm = si.reg_dttm
+    	where 
+    		sdp.stock_code = #{stockCode}
+    	order by 
+    		sdp.reg_dttm desc
+    </select>
+    
+</mapper>

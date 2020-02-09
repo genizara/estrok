@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- ==================================================================== -->
+	<!-- DB 접속설정 -->
+	<!-- ==================================================================== -->
+	<!-- Apache DBCP DataSource를 생성한다. 데이터베이스 관련 설정은 jdbc.properties를 따른다. -->
+
+	<!-- ==================================================================== -->
+	<!-- Mall-Web -->
+	<!-- ==================================================================== -->
+	<!-- 로컬 : Spring 사용 -->
+	<beans:bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<beans:property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+		<beans:property name="url" value="jdbc:mysql://127.0.0.1:3306/estrok?serverTimezone=Asia/Seoul" />
+		<beans:property name="username" value="root" />
+		<beans:property name="password" value="wjdekf$033" />
+		<beans:property name="validationQuery" value="select 1"/>
+	</beans:bean>
+
+	<beans:bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="mapperLocations" value="classpath:sql/*.xml" />
+	</beans:bean>
+
+	<beans:bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<beans:property name="basePackage" value="com.estrok.web.mapper" />
+	</beans:bean>
+
+	<!-- SqlSession 빈을 생성한다. (SqlSessionFactory 주입, Dao에서 사용) -->
+	<beans:bean id="sqlSession" name="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<beans:constructor-arg index="0" ref="sqlSessionFactory" />
+	</beans:bean>
+
+	<!-- ==================================================================== -->
+	<!-- 트랜잭션 매니저 빈을 생성한다.(커밋,롤백 처리) -->
+	<!-- 반듯이 servlet-context.xml 에 -->
+	<!-- <tx:annotation-driven transaction-manager="transactionManagerWeb" /> 
+		를 -->
+	<!-- 선언해주어야한다.(mybatis-context.xml 에 선언하면 커밋, 롤백처리 안됨 -->
+	<!-- ==================================================================== -->
+	<!-- Mall-Web -->
+	<beans:bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSource" />
+	</beans:bean>
+
+	<!-- @Transactional을 Service interface 없이 사용할 경우 필요 -->
+	<tx:annotation-driven proxy-target-class="true" />
+
+</beans:beans>
